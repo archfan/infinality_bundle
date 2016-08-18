@@ -14,7 +14,7 @@ license=('GPL' 'MIT')
 url="http://freetype.sourceforge.net"
 groups=('infinality-bundle-multilib')
 depends=('lib32-zlib' 'lib32-bzip2' 'lib32-libpng' 'lib32-harfbuzz' $_pkgbasename-infinality-ultimate)
-makedepends=(gcc-multilib)
+makedepends=('gcc-multilib')
 conflicts=('lib32-freetype2' 'lib32-freetype2-infinality' 'lib32-freetype2-git-infinality'
            'lib32-freetype2-ubuntu')
 provides=('lib32-freetype2' 'lib32-freetype2-infinality')
