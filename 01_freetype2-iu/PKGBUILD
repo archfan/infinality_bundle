@@ -4,7 +4,8 @@
 pkgname=freetype2-infinality-ultimate
 pkgver=2.6.5
 pkgrel=2
-pkgdesc="TrueType font rendering library"
+_patchrel=2016.08.18
+pkgdesc="TrueType font rendering library with Infinality patches and custom settings by bohoomil"
 arch=(i686 x86_64)
 license=('GPL')
 url="http://www.freetype.org/"
@@ -12,13 +13,12 @@ url="http://www.freetype.org/"
 # introduces a cycle dep to harfbuzz depending on freetype wanted by upstream
 depends=('zlib' 'bzip2' 'sh' 'libpng' 'harfbuzz')
 makedepends=('libx11')
-optdepends=('libx11: Some demo programs')
 provides=("freetype2=$pkgver" 'freetype2-infinality' 'libfreetype.so')
 conflicts=('freetype2' 'freetype2-infinality')
 install=freetype2.install
 source=(http://downloads.sourceforge.net/sourceforge/freetype/freetype-${pkgver}.tar.bz2
         0001-Enable-table-validation-modules.patch
-	0002-infinality-2.6.5-2016.08.18.patch)
+	0002-infinality-${pkgver}-${_patchrel}.patch)
 
 sha1sums=('5db38ae2308c5a2c519c8e071e98b70d61585201'
           'e1fde7854d2a64868a5eef07415ad23c339fc630'
@@ -30,7 +30,7 @@ prepare() {
 
   cd freetype2
   patch -Np1 -i ../0001-Enable-table-validation-modules.patch
-  patch -Np1 -i ../0002-infinality-2.6.5-2016.08.18.patch
+  patch -Np1 -i ../0002-infinality-${pkgver}-${_patchrel}.patch
 }
 
 build() {
