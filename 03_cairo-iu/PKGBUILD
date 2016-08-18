@@ -12,7 +12,7 @@ license=('LGPL' 'MPL')
 url="http://cairographics.org/"
 # requires libGL + libEGL - all libgl variants (mesa, nvidia-xxx-libgl/nvidia-utils) provide libEGL
 depends=('libpng' 'libxrender' 'libxext' 'fontconfig' 'pixman' 'glib2' 'libgl' 'lzo')
-makedepends=('nvidia-libgl' 'librsvg' 'gtk2' 'poppler-glib' 'libspectre' 'gtk-doc' 'valgrind' 'git')
+makedepends=('mesa-libgl' 'librsvg' 'gtk2' 'poppler-glib' 'libspectre' 'gtk-doc' 'valgrind' 'git')
              # for the test suite:
              #'ttf-dejavu' 'gsfonts' 'xorg-server-xvfb' ) # 'libdrm')
 #optdepends=('xcb-util: for XCB backend') # really needed?
