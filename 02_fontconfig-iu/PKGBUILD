@@ -1,7 +1,7 @@
 # Maintainer: Jan de Groot <jgc@archlinux.org>
 # Maintainer: bohoomil <bohoomil@zoho.com>
 
-pkgname=fontconfig-infinality-ultimat
+pkgname=fontconfig-infinality-ultimate
 _basename=fontconfig
 pkgdesc="A library for configuring and customizing font access, optimized for freetype2-infinality-ultimate."
 url='http://www.fontconfig.org/release/'
