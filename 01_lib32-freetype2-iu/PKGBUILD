@@ -1,0 +1,60 @@
+# Maintainer: Shanto <shanto@hotmail.com>
+# Contributor: JIN Xiao-Yong <jinxiaoyong@gmail.com>
+# Contributor: Andre Fettouhi <A.Fettouhi@gmail.com>
+# Maintainer: bohoomil <@zoho.com>
+
+_pkgbasename=freetype2
+pkgname=lib32-$_pkgbasename-infinality-ultimate
+pkgver=2.6.5
+pkgrel=2
+_patchrel=2016.08.18
+pkgdesc="TrueType font rendering library with Infinality patches and custom settings by bohoomil (32-bit, infinality-bundle)."
+arch=(x86_64)
+license=('GPL' 'MIT')
+url="http://freetype.sourceforge.net"
+groups=('infinality-bundle-multilib')
+depends=('lib32-zlib' 'lib32-bzip2' 'lib32-libpng' 'lib32-harfbuzz' $_pkgbasename-infinality-ultimate)
+makedepends=(gcc-multilib)
+conflicts=('lib32-freetype2' 'lib32-freetype2-infinality' 'lib32-freetype2-git-infinality'
+           'lib32-freetype2-ubuntu')
+provides=('lib32-freetype2' 'lib32-freetype2-infinality')
+options=('!libtool')
+source=(http://downloads.sourceforge.net/sourceforge/freetype/freetype-${pkgver}.tar.bz2	
+	0001-Enable-table-validation-modules.patch
+        0002-infinality-${pkgver}-${_patchrel}.patch)
+
+sha1sums=('5db38ae2308c5a2c519c8e071e98b70d61585201'
+          'e1fde7854d2a64868a5eef07415ad23c339fc630'
+          '1b455a02c3008da744dc7e838d730142d0086240')
+
+prepare() {
+  cd "freetype-${pkgver}"
+  patch -Np1 -i ../0001-Enable-table-validation-modules.patch
+  patch -Np1 -i ../0002-infinality-${pkgver}-${_patchrel}.patch
+}
+
+build() {
+  export CC="gcc -m32"
+  export CXX="g++ -m32"
+  export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+  cd "freetype-${pkgver}"
+
+  ./configure \
+    --prefix=/usr \
+    --disable-static \
+    --with-harfbuzz \
+    --libdir=/usr/lib32
+  make
+}
+
+#check() {
+  #cd "freetype-${pkgver}"
+  #make -k check
+#}
+
+package() {
+  cd "freetype-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
