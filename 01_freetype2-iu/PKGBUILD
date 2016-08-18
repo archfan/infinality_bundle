@@ -25,7 +25,6 @@ sha1sums=('5db38ae2308c5a2c519c8e071e98b70d61585201'
           '1b455a02c3008da744dc7e838d730142d0086240')
 
 prepare() {
-  # Rename source dir to allow building the demos
   mv freetype-${pkgver} freetype2
 
   cd freetype2
@@ -39,10 +38,10 @@ build() {
   make
 }
 
-check() {
-  cd freetype2
-  make -k check
-}
+#check() {
+#  cd freetype2
+#  make -k check
+#}
 
 package() {
   cd freetype2
