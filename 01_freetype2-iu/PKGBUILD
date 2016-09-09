@@ -3,7 +3,7 @@
 
 pkgname=freetype2-infinality-ultimate
 pkgver=2.7
-pkgrel=1
+pkgrel=2
 _patchrel=2016.09.09
 pkgdesc="TrueType font rendering library with Infinality patches and custom settings by bohoomil"
 arch=(i686 x86_64)
@@ -18,11 +18,13 @@ conflicts=('freetype2' 'freetype2-infinality')
 install=freetype2.install
 source=(http://downloads.sourceforge.net/sourceforge/freetype/freetype-${pkgver}.tar.bz2
         0001-Enable-table-validation-modules.patch
-	0002-infinality-${pkgver}-${_patchrel}.patch)
+	0002-infinality-${pkgver}-${_patchrel}.patch
+	freetype2.sh)
 
 sha1sums=('f251029d5ab542a96dd4531605fe577185077560'
           'b31882ef5e8447e761acee1c4a44c0630cd4d465'
-          '707b34fb142c1017fade9c2510ad36e0f2cca510')
+          '753a97119586e69c5e57d4b4cf9e445637d4ae49'
+          'bc6df1661c4c33e20f5ce30c2da8ad3c2083665f')
 
 prepare() {
   mv freetype-${pkgver} freetype2
@@ -46,4 +48,5 @@ build() {
 package() {
   cd freetype2
   make DESTDIR="${pkgdir}" install
+  install -Dm644 ../freetype2.sh "${pkgdir}/etc/profile.d/freetype2.sh"
 }

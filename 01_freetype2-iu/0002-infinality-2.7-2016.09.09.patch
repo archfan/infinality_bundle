@@ -43,7 +43,7 @@ diff -ruN freetype-2.7-orig/devel/ftoption.h freetype-2.7/devel/ftoption.h
    /*                                                                       */
 diff -ruN freetype-2.7-orig/include/freetype/config/ftoption.h freetype-2.7/include/freetype/config/ftoption.h
 --- freetype-2.7-orig/include/freetype/config/ftoption.h	2016-09-02 07:47:15.000000000 +0200
-+++ freetype-2.7/include/freetype/config/ftoption.h	2016-09-09 16:03:06.759343564 +0200
++++ freetype-2.7/include/freetype/config/ftoption.h	2016-09-09 18:35:36.626205358 +0200
 @@ -122,7 +122,7 @@
    /* This is done to allow FreeType clients to run unmodified, forcing     */
    /* them to display normal gray-level anti-aliased glyphs.                */
@@ -53,15 +53,17 @@ diff -ruN freetype-2.7-orig/include/freetype/config/ftoption.h freetype-2.7/incl
  
  
    /*************************************************************************/
-@@ -675,7 +675,7 @@
+@@ -675,8 +675,8 @@
    /* [1] http://www.microsoft.com/typography/cleartype/truetypecleartype.aspx */
    /*                                                                       */
  /* #define TT_CONFIG_OPTION_SUBPIXEL_HINTING  1         */
 -#define TT_CONFIG_OPTION_SUBPIXEL_HINTING  2
+-/* #define TT_CONFIG_OPTION_SUBPIXEL_HINTING  ( 1 | 2 ) */
 +#define TT_CONFIG_OPTION_SUBPIXEL_HINTING  1
- /* #define TT_CONFIG_OPTION_SUBPIXEL_HINTING  ( 1 | 2 ) */
++#define TT_CONFIG_OPTION_SUBPIXEL_HINTING  ( 1 | 2 )
  
  
+   /*************************************************************************/
 diff -ruN freetype-2.7-orig/src/autofit/aflatin.c freetype-2.7/src/autofit/aflatin.c
 --- freetype-2.7-orig/src/autofit/aflatin.c	2016-08-26 11:45:36.000000000 +0200
 +++ freetype-2.7/src/autofit/aflatin.c	2016-09-09 16:01:22.465167416 +0200
