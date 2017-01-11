@@ -5090,8 +5090,8 @@ diff -ruN freetype-2.7-orig/src/smooth/ftsmooth.c freetype-2.7/src/smooth/ftsmoo
  #endif
 +    FT_Bitmap*   bitmap  = &slot->bitmap;
 +    FT_Memory    memory  = render->root.memory;
-     FT_Int       hmul    = mode == FT_RENDER_MODE_LCD;
-     FT_Int       vmul    = mode == FT_RENDER_MODE_LCD_V;
+     FT_Int       hmul    = ( mode == FT_RENDER_MODE_LCD );
+     FT_Int       vmul    = ( mode == FT_RENDER_MODE_LCD_V );
 +    FT_Pos       x_shift = 0;
 +    FT_Pos       y_shift = 0;
 +    FT_Pos       x_left, y_top;
@@ -5700,3 +5700,24 @@ diff -ruN freetype-2.7-orig/src/truetype/ttinterp.c freetype-2.7/src/truetype/tt
             !( exc->sph_tweak_flags & SPH_TWEAK_NORMAL_ROUND ) )
          control_value_cutin = 0;
      }
+--- freetype-2.7-orig/include/freetype/config/ftoption.h	2017-01-11 09:59:35.258727644 +0100
+--- freetype-2.7/include/freetype/config/ftoption.h	2017-01-11 10:00:27.288727669 +0100
+@@ -869,6 +869,18 @@
+   /*                                                                       */
+ #define AF_CONFIG_OPTION_USE_WARPER
+ 
++  /*************************************************************************/
++  /*                                                                       */
++  /* Define FT_CONFIG_OPTION_INFINALITY_PATCHSET if you want to enable     */
++  /* all additional infinality patches, which are configured via env       */
++  /* variables.                                                            */
++  /*                                                                       */
++  /*   This option requires TT_CONFIG_OPTION_SUBPIXEL_HINTING to           */
++  /*   defined.                                                            */
++  /*                                                                       */
++#define FT_CONFIG_OPTION_INFINALITY_PATCHSET
++
++
+   /* */
+ 
+ 
