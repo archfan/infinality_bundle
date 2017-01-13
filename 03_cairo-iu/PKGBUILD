@@ -11,7 +11,7 @@ arch=(i686 x86_64)
 license=('LGPL' 'MPL')
 url="http://cairographics.org/"
 # requires libGL + libEGL - all libgl variants (mesa, nvidia-xxx-libgl/nvidia-utils) provide libEGL
-depends=('libpng' 'libxrender' 'libxext' 'fontconfig' 'pixman' 'glib2' 'libgl' 'lzo')
+depends=('libpng' 'libxrender' 'libxext' 'fontconfig-infinality-ultimate' 'pixman' 'glib2' 'libgl' 'lzo')
 makedepends=('mesa-libgl' 'librsvg' 'gtk2' 'poppler-glib' 'libspectre' 'gtk-doc' 'valgrind' 'git')
              # for the test suite:
              #'ttf-dejavu' 'gsfonts' 'xorg-server-xvfb' ) # 'libdrm')
