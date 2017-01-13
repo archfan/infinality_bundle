@@ -11,6 +11,7 @@ license=('GPL')
 url="http://www.freetype.org/"
 # adding harfbuzz for improved OpenType features auto-hinting
 # introduces a cycle dep to harfbuzz depending on freetype wanted by upstream
+groups=('infinality-bundle')
 depends=('zlib' 'bzip2' 'sh' 'libpng' 'harfbuzz')
 makedepends=('libx11')
 provides=("freetype2=$pkgver" 'freetype2-infinality' 'libfreetype.so')
