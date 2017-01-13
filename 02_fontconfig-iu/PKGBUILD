@@ -11,7 +11,7 @@ pkgrel=3
 arch=('i686' 'x86_64')
 changelog=CHANGELOG
 groups=('infinality-bundle')
-depends=('expat' 'freetype2')
+depends=('expat' 'freetype2-infinality-ultimate')
 makedepends=('gperf' 'python2-lxml')
 options=('!libtool')
 provides=('fontconfig=$pkgver' 'fontconfig-infinality' 'fontconfig-infinality-ultimate')
