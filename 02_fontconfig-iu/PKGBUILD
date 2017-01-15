@@ -80,10 +80,10 @@ build() {
   make
 }
 
-check() {
-  cd "${_basename}-${pkgver}"
-  make -k check
-}
+#check() {
+#  cd "${_basename}-${pkgver}"
+#  make -k check
+#}
 
 package() {
   cd "${_basename}-${pkgver}"
