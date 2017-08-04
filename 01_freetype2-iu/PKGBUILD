@@ -2,9 +2,9 @@
 # Maintainer: Jan de Groot <jgc@archlinux.org>
 
 pkgname=freetype2-infinality-ultimate
-pkgver=2.7.1
-pkgrel=2
-_patchrel=2017.01.11
+pkgver=2.8
+pkgrel=1
+_patchrel=2017.05.24
 pkgdesc="TrueType font rendering library with Infinality patches and custom settings by bohoomil"
 arch=(i686 x86_64)
 license=('GPL')
@@ -22,9 +22,9 @@ source=(http://downloads.sourceforge.net/sourceforge/freetype/freetype-${pkgver}
 	0002-infinality-${pkgver}-${_patchrel}.patch
 	freetype2.sh)
 
-sha1sums=('4d08a9a6567c6332d58e9a5f9a7e9e3fbce66789'
+sha1sums=('42c6b1f733fe13a3eba135f5025b22cb68450f91'
           'b31882ef5e8447e761acee1c4a44c0630cd4d465'
-          '7a23342d5d56274ff8a05c67f64b96e85929f629'
+          '4b442f097eeae28516b43c659a3d7a679129052c'
           'bc6df1661c4c33e20f5ce30c2da8ad3c2083665f')
 
 prepare() {
