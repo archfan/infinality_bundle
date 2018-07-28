@@ -1,24 +1,24 @@
-From 48c2930e9b83c47457ca03f5f8e6f1b61540a8e6 Mon Sep 17 00:00:00 2001
-From: "Devin J. Pohly" <djpohly@gmail.com>
-Date: Wed, 24 May 2017 15:08:52 -0500
-Subject: [PATCH] infinality 2.8 2017.05.24
+From 28b2acb0f02b648b053d3150de702c913bedd8e4 Mon Sep 17 00:00:00 2001
+From: igrekster <igrek+github@fastem.com>
+Date: Thu, 21 Jun 2018 00:13:06 +1000
+Subject: [PATCH] Infinality
 
 ---
  builds/freetype.mk                 |    1 +
  configure                          |    2 +
  devel/ftoption.h                   |   10 +
  include/freetype/config/ftoption.h |   17 +-
- src/autofit/aflatin.c              |  170 ++-
+ src/autofit/aflatin.c              |  168 +-
  src/autofit/aflatin.h              |    3 +
  src/autofit/afmodule.c             |    7 +
  src/base/Jamfile                   |    1 +
  src/base/ftbase.c                  |    3 +
- src/base/ftinf.c                   |  363 +++++
+ src/base/ftinf.c                   |  363 ++++
  src/base/ftinf.h                   |   66 +
- src/base/ftinf_rh.c                |  626 ++++++++
- src/base/ftinf_rh.gperf            |  283 ++++
- src/base/ftinf_sh.c                |  463 ++++++
- src/base/ftinf_sh.gperf            |  264 ++++
+ src/base/ftinf_rh.c                |  626 +++++++
+ src/base/ftinf_rh.gperf            |  283 +++
+ src/base/ftinf_sh.c                |  463 +++++
+ src/base/ftinf_sh.gperf            |  264 +++
  src/base/ftinit.c                  |   14 +-
  src/base/ftlcdfil.c                |   35 +-
  src/base/ftobjs.c                  |   67 +-
@@ -26,9 +26,9 @@ Subject: [PATCH] infinality 2.8 2017.05.24
  src/base/ftsynth.c                 |   22 +-
  src/base/rules.mk                  |    1 +
  src/cff/cffobjs.c                  |    6 +
- src/smooth/ftsmooth.c              | 2808 ++++++++++++++++++++++++++++++++++--
+ src/smooth/ftsmooth.c              | 2585 +++++++++++++++++++++++++++-
  src/truetype/ttinterp.c            |    1 +
- 24 files changed, 5122 insertions(+), 121 deletions(-)
+ 24 files changed, 4991 insertions(+), 27 deletions(-)
  create mode 100644 src/base/ftinf.c
  create mode 100644 src/base/ftinf.h
  create mode 100644 src/base/ftinf_rh.c
@@ -37,10 +37,10 @@ Subject: [PATCH] infinality 2.8 2017.05.24
  create mode 100644 src/base/ftinf_sh.gperf
 
 diff --git a/builds/freetype.mk b/builds/freetype.mk
-index f8cfd41..7e7ac5b 100644
+index 6f68a0f65..74f550b53 100644
 --- a/builds/freetype.mk
 +++ b/builds/freetype.mk
-@@ -161,6 +161,7 @@ FT_CFLAGS  = $(CPPFLAGS) \
+@@ -164,6 +164,7 @@ FT_CFLAGS  = $(CPPFLAGS) \
               $(CFLAGS) \
               $DFT2_BUILD_LIBRARY \
               $DFT_CONFIG_MODULES_H="<ftmodule.h>" \
@@ -49,7 +49,7 @@ index f8cfd41..7e7ac5b 100644
  
  
 diff --git a/configure b/configure
-index 68dbd99..165703c 100755
+index f9d218667..429d40e41 100755
 --- a/configure
 +++ b/configure
 @@ -13,6 +13,8 @@
@@ -62,10 +62,10 @@ index 68dbd99..165703c 100755
  
  # respect GNUMAKE environment variable for backward compatibility
 diff --git a/devel/ftoption.h b/devel/ftoption.h
-index db661e7..911f411 100644
+index 1b4619eb0..33fa15dda 100644
 --- a/devel/ftoption.h
 +++ b/devel/ftoption.h
-@@ -626,6 +626,16 @@ FT_BEGIN_HEADER
+@@ -581,6 +581,16 @@ FT_BEGIN_HEADER
    /*                                                                       */
  #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER
  
@@ -83,19 +83,19 @@ index db661e7..911f411 100644
    /*************************************************************************/
    /*                                                                       */
 diff --git a/include/freetype/config/ftoption.h b/include/freetype/config/ftoption.h
-index 1bf6e8f..c565b36 100644
+index 4bcab2af5..261846366 100644
 --- a/include/freetype/config/ftoption.h
 +++ b/include/freetype/config/ftoption.h
 @@ -122,7 +122,7 @@ FT_BEGIN_HEADER
-   /* This is done to allow FreeType clients to run unmodified, forcing     */
-   /* them to display normal gray-level anti-aliased glyphs.                */
+   /* rendering technology that produces excellent output without LCD       */
+   /* filtering.                                                            */
    /*                                                                       */
 -/* #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
 +#define FT_CONFIG_OPTION_SUBPIXEL_RENDERING
  
  
    /*************************************************************************/
-@@ -626,6 +626,17 @@ FT_BEGIN_HEADER
+@@ -600,6 +600,17 @@ FT_BEGIN_HEADER
    /*                                                                       */
  #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER
  
@@ -113,8 +113,8 @@ index 1bf6e8f..c565b36 100644
  
    /*************************************************************************/
    /*                                                                       */
-@@ -684,8 +695,8 @@ FT_BEGIN_HEADER
-   /* [1] http://www.microsoft.com/typography/cleartype/truetypecleartype.aspx */
+@@ -658,8 +669,8 @@ FT_BEGIN_HEADER
+   /* [1] https://www.microsoft.com/typography/cleartype/truetypecleartype.aspx */
    /*                                                                       */
  /* #define TT_CONFIG_OPTION_SUBPIXEL_HINTING  1         */
 -#define TT_CONFIG_OPTION_SUBPIXEL_HINTING  2
@@ -125,7 +125,7 @@ index 1bf6e8f..c565b36 100644
  
    /*************************************************************************/
 diff --git a/src/autofit/aflatin.c b/src/autofit/aflatin.c
-index 11fa523..9036fc4 100644
+index 9f1b54056..b1595ddbe 100644
 --- a/src/autofit/aflatin.c
 +++ b/src/autofit/aflatin.c
 @@ -24,7 +24,10 @@
@@ -213,7 +213,7 @@ index 11fa523..9036fc4 100644
  
  #endif
  
-@@ -2504,7 +2530,10 @@
+@@ -2509,7 +2535,10 @@
                dist = edge->fpos - blue->shoot.org;
                if ( dist < 0 )
                  dist = -dist;
@@ -225,12 +225,10 @@ index 11fa523..9036fc4 100644
                dist = FT_MulFix( dist, scale );
                if ( dist < best_dist )
                {
-@@ -2680,8 +2709,17 @@
+@@ -2685,8 +2714,17 @@
      FT_Pos           dist     = width;
      FT_Int           sign     = 0;
      FT_Int           vertical = ( dim == AF_DIMENSION_VERT );
--
--
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +    FT_Int           infinality_dist = 0;
 +    FT_UInt          autohint_snap_stem_height = 0;
@@ -239,13 +237,14 @@ index 11fa523..9036fc4 100644
 +        autohint_snap_stem_height = 100;
 +    else if ( autohint_snap_stem_height < 0 )
 +        autohint_snap_stem_height = 0;
-+
+ 
+-
 +    if ( autohint_snap_stem_height == 0 )
 +#endif /* FT_CONFIG_OPTION_INFINALITY_PATCHSET */
      if ( !AF_LATIN_HINTS_DO_STEM_ADJUST( hints ) ||
           axis->extra_light                       )
        return width;
-@@ -2691,9 +2729,76 @@
+@@ -2696,9 +2734,76 @@
        dist = -width;
        sign = 1;
      }
@@ -257,7 +256,8 @@ index 11fa523..9036fc4 100644
 +    {
 +      infinality_dist = af_latin_snap_width( axis->widths,
 +                                             axis->width_count, dist );
-+
+ 
+-    if ( (  vertical && !AF_LATIN_HINTS_DO_VERT_SNAP( hints ) ) ||
 +      if ( metrics->root.scaler.face->size->metrics.x_ppem > 9 &&
 +           axis->width_count > 0                               &&
 +           abs( axis->widths[0].cur - infinality_dist ) < 32   &&
@@ -298,8 +298,7 @@ index 11fa523..9036fc4 100644
 +            infinality_dist = 254;
 +          else infinality_dist = ( infinality_dist + 16 ) & ~63;
 +        }
- 
--    if ( (  vertical && !AF_LATIN_HINTS_DO_VERT_SNAP( hints ) ) ||
++
 +      }
 +      if ( infinality_dist < 52 )
 +      {
@@ -323,7 +322,7 @@ index 11fa523..9036fc4 100644
      {
        /* smooth hinting process: very lightly quantize the stem width */
  
-@@ -2785,6 +2890,9 @@
+@@ -2790,6 +2895,9 @@
        }
      }
      else
@@ -333,7 +332,7 @@ index 11fa523..9036fc4 100644
      {
        /* strong hinting process: snap the stem width to integer pixels */
  
-@@ -2792,7 +2900,10 @@
+@@ -2797,7 +2905,10 @@
  
  
        dist = af_latin_snap_width( axis->widths, axis->width_count, dist );
@@ -345,7 +344,7 @@ index 11fa523..9036fc4 100644
        if ( vertical )
        {
          /* in the case of vertical hinting, always round */
-@@ -2855,6 +2966,32 @@
+@@ -2860,6 +2971,32 @@
      }
  
    Done_Width:
@@ -378,7 +377,7 @@ index 11fa523..9036fc4 100644
      if ( sign )
        dist = -dist;
  
-@@ -2873,6 +3010,8 @@
+@@ -2878,6 +3015,8 @@
      FT_Pos  dist, base_delta;
      FT_Pos  fitted_width;
  
@@ -387,7 +386,7 @@ index 11fa523..9036fc4 100644
  
      dist       = stem_edge->opos - base_edge->opos;
      base_delta = base_edge->pos - base_edge->opos;
-@@ -3485,8 +3624,11 @@
+@@ -3490,8 +3629,11 @@
      int       dim;
  
      AF_LatinAxis  axis;
@@ -401,7 +400,7 @@ index 11fa523..9036fc4 100644
      error = af_glyph_hints_reload( hints, outline );
      if ( error )
        goto Exit;
-@@ -3556,7 +3698,11 @@
+@@ -3555,7 +3697,11 @@
      }
  
      af_glyph_hints_save( hints, outline );
@@ -415,7 +414,7 @@ index 11fa523..9036fc4 100644
      return error;
    }
 diff --git a/src/autofit/aflatin.h b/src/autofit/aflatin.h
-index d80e125..3ca779b 100644
+index 432cccce4..6e03d50c3 100644
 --- a/src/autofit/aflatin.h
 +++ b/src/autofit/aflatin.h
 @@ -64,6 +64,9 @@ FT_BEGIN_HEADER
@@ -429,7 +428,7 @@ index d80e125..3ca779b 100644
  #define AF_LATIN_BLUE_ACTIVE      ( 1U << 0 ) /* zone height is <= 3/4px   */
  #define AF_LATIN_BLUE_TOP         ( 1U << 1 ) /* we have a top blue zone   */
 diff --git a/src/autofit/afmodule.c b/src/autofit/afmodule.c
-index 9d7ba22..abe2367 100644
+index dcaa17a27..aa349d58e 100644
 --- a/src/autofit/afmodule.c
 +++ b/src/autofit/afmodule.c
 @@ -22,6 +22,10 @@
@@ -454,22 +453,22 @@ index 9d7ba22..abe2367 100644
      module->darken_params[0]  = CFF_CONFIG_OPTION_DARKENING_PARAMETER_X1;
      module->darken_params[1]  = CFF_CONFIG_OPTION_DARKENING_PARAMETER_Y1;
 diff --git a/src/base/Jamfile b/src/base/Jamfile
-index 9e9a91b..5217651 100644
+index 4994c1b4c..e3ae751c1 100644
 --- a/src/base/Jamfile
 +++ b/src/base/Jamfile
-@@ -56,6 +56,7 @@ SubDir  FT2_TOP $(FT2_SRC_DIR) base ;
+@@ -58,6 +58,7 @@ SubDir  FT2_TOP $(FT2_SRC_DIR) base ;
                      ftglyph
                      ftgxval
                      ftinit
 +                    ftinf
-                     ftlcdfil
                      ftmm
                      ftotval
+                     ftpatent
 diff --git a/src/base/ftbase.c b/src/base/ftbase.c
-index 55f7359..4d50dca 100644
+index f914b9b24..a3c2afd5d 100644
 --- a/src/base/ftbase.c
 +++ b/src/base/ftbase.c
-@@ -34,6 +34,9 @@
+@@ -37,6 +37,9 @@
  #include "ftstream.c"
  #include "fttrigon.c"
  #include "ftutil.c"
@@ -481,7 +480,7 @@ index 55f7359..4d50dca 100644
  /* END */
 diff --git a/src/base/ftinf.c b/src/base/ftinf.c
 new file mode 100644
-index 0000000..5d6b7f6
+index 000000000..5d6b7f682
 --- /dev/null
 +++ b/src/base/ftinf.c
 @@ -0,0 +1,363 @@
@@ -850,7 +849,7 @@ index 0000000..5d6b7f6
 +}
 diff --git a/src/base/ftinf.h b/src/base/ftinf.h
 new file mode 100644
-index 0000000..fbe1bd1
+index 000000000..fbe1bd19d
 --- /dev/null
 +++ b/src/base/ftinf.h
 @@ -0,0 +1,66 @@
@@ -922,7 +921,7 @@ index 0000000..fbe1bd1
 +#endif
 diff --git a/src/base/ftinf_rh.c b/src/base/ftinf_rh.c
 new file mode 100644
-index 0000000..606b567
+index 000000000..606b5671a
 --- /dev/null
 +++ b/src/base/ftinf_rh.c
 @@ -0,0 +1,626 @@
@@ -1554,7 +1553,7 @@ index 0000000..606b567
 +*/
 diff --git a/src/base/ftinf_rh.gperf b/src/base/ftinf_rh.gperf
 new file mode 100644
-index 0000000..9fd8aab
+index 000000000..9fd8aab95
 --- /dev/null
 +++ b/src/base/ftinf_rh.gperf
 @@ -0,0 +1,283 @@
@@ -1843,7 +1842,7 @@ index 0000000..9fd8aab
 +*/
 diff --git a/src/base/ftinf_sh.c b/src/base/ftinf_sh.c
 new file mode 100644
-index 0000000..87d2ff8
+index 000000000..87d2ff8bd
 --- /dev/null
 +++ b/src/base/ftinf_sh.c
 @@ -0,0 +1,463 @@
@@ -2312,7 +2311,7 @@ index 0000000..87d2ff8
 +*/
 diff --git a/src/base/ftinf_sh.gperf b/src/base/ftinf_sh.gperf
 new file mode 100644
-index 0000000..5f6e0ae
+index 000000000..5f6e0ae62
 --- /dev/null
 +++ b/src/base/ftinf_sh.gperf
 @@ -0,0 +1,264 @@
@@ -2581,7 +2580,7 @@ index 0000000..5f6e0ae
 +   gperf --output-file=ftinf_sh.c ftinf_sh.gperf
 +*/
 diff --git a/src/base/ftinit.c b/src/base/ftinit.c
-index b3b08fa..c125db9 100644
+index 1fa472109..e73e9bcdb 100644
 --- a/src/base/ftinit.c
 +++ b/src/base/ftinit.c
 @@ -43,7 +43,9 @@
@@ -2614,7 +2613,7 @@ index b3b08fa..c125db9 100644
      return error;
    }
 diff --git a/src/base/ftlcdfil.c b/src/base/ftlcdfil.c
-index 611b39f..f59793a 100644
+index 8d314df08..5b86d2aca 100644
 --- a/src/base/ftlcdfil.c
 +++ b/src/base/ftlcdfil.c
 @@ -22,7 +22,10 @@
@@ -2629,7 +2628,7 @@ index 611b39f..f59793a 100644
  
  #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
  
-@@ -306,11 +309,37 @@
+@@ -296,11 +299,37 @@
    FT_Library_SetLcdFilter( FT_Library    library,
                             FT_LcdFilter  filter )
    {
@@ -2670,10 +2669,10 @@ index 611b39f..f59793a 100644
      if ( !library )
        return FT_THROW( Invalid_Library_Handle );
 diff --git a/src/base/ftobjs.c b/src/base/ftobjs.c
-index 539116e..c86b348 100644
+index 8d07e35ae..66ec5134c 100644
 --- a/src/base/ftobjs.c
 +++ b/src/base/ftobjs.c
-@@ -43,7 +43,9 @@
+@@ -46,7 +46,9 @@
  #ifdef FT_CONFIG_OPTION_MAC_FONTS
  #include "ftbase.h"
  #endif
@@ -2684,7 +2683,7 @@ index 539116e..c86b348 100644
  
  #ifdef FT_DEBUG_LEVEL_TRACE
  
-@@ -81,6 +83,11 @@
+@@ -84,6 +86,11 @@
  
  #define GRID_FIT_METRICS
  
@@ -2696,7 +2695,7 @@ index 539116e..c86b348 100644
  
    /* forward declaration */
    static FT_Error
-@@ -567,6 +574,25 @@
+@@ -702,6 +709,25 @@
    ft_lookup_glyph_renderer( FT_GlyphSlot  slot );
  
  
@@ -2722,7 +2721,7 @@ index 539116e..c86b348 100644
  #ifdef GRID_FIT_METRICS
    static void
    ft_glyphslot_grid_fit_metrics( FT_GlyphSlot  slot,
-@@ -625,8 +651,18 @@
+@@ -768,8 +794,18 @@
      FT_Bool       autohint = FALSE;
      FT_Module     hinter;
      TT_Face       ttface = (TT_Face)face;
@@ -2741,7 +2740,7 @@ index 539116e..c86b348 100644
      if ( !face || !face->size || !face->glyph )
        return FT_THROW( Invalid_Face_Handle );
  
-@@ -717,6 +753,18 @@
+@@ -872,6 +908,18 @@
      {
        FT_AutoHinter_Interface  hinting;
  
@@ -2760,7 +2759,7 @@ index 539116e..c86b348 100644
  
        /* try to load embedded bitmaps first if available            */
        /*                                                            */
-@@ -762,6 +810,18 @@
+@@ -917,6 +965,18 @@
        if ( error )
          goto Exit;
  
@@ -2779,7 +2778,7 @@ index 539116e..c86b348 100644
        if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
        {
          /* check that the loaded outline is correct */
-@@ -4986,6 +5046,11 @@
+@@ -5172,6 +5232,11 @@
      /* That's ok now */
      *alibrary = library;
  
@@ -2792,7 +2791,7 @@ index 539116e..c86b348 100644
  
  #ifdef FT_CONFIG_OPTION_PIC
 diff --git a/src/base/ftoutln.c b/src/base/ftoutln.c
-index 464a066..d84a82a 100644
+index cb91321de..d5d12d682 100644
 --- a/src/base/ftoutln.c
 +++ b/src/base/ftoutln.c
 @@ -29,7 +29,9 @@
@@ -2806,7 +2805,7 @@ index 464a066..d84a82a 100644
  
    /*************************************************************************/
    /*                                                                       */
-@@ -913,7 +915,13 @@
+@@ -914,7 +916,13 @@
      FT_Vector*  points;
      FT_Int      c, first, last;
      FT_Int      orientation;
@@ -2821,7 +2820,7 @@ index 464a066..d84a82a 100644
      if ( !outline )
        return FT_THROW( Invalid_Outline );
 diff --git a/src/base/ftsynth.c b/src/base/ftsynth.c
-index 66dae60..89124f1 100644
+index c28346707..b3d40824b 100644
 --- a/src/base/ftsynth.c
 +++ b/src/base/ftsynth.c
 @@ -22,7 +22,9 @@
@@ -2876,24 +2875,24 @@ index 66dae60..89124f1 100644
      slot->metrics.vertAdvance  += ystr;
      slot->metrics.horiBearingY += ystr;
 diff --git a/src/base/rules.mk b/src/base/rules.mk
-index 2a1e93c..1a38d49 100644
+index e9805bd06..815daba0d 100644
 --- a/src/base/rules.mk
 +++ b/src/base/rules.mk
-@@ -42,6 +42,7 @@ BASE_SRC := $(BASE_DIR)/basepic.c  \
-             $(BASE_DIR)/ftdbgmem.c \
+@@ -44,6 +44,7 @@ BASE_SRC := $(BASE_DIR)/basepic.c  \
              $(BASE_DIR)/ftgloadr.c \
              $(BASE_DIR)/fthash.c   \
+             $(BASE_DIR)/ftlcdfil.c \
 +            $(BASE_DIR)/ftinf.c    \
              $(BASE_DIR)/ftobjs.c   \
              $(BASE_DIR)/ftoutln.c  \
              $(BASE_DIR)/ftpic.c    \
 diff --git a/src/cff/cffobjs.c b/src/cff/cffobjs.c
-index 6161393..8c00aa9 100644
+index a2d7aec65..aa5bb0a00 100644
 --- a/src/cff/cffobjs.c
 +++ b/src/cff/cffobjs.c
-@@ -39,6 +39,9 @@
- 
- #include "cfferrs.h"
+@@ -44,6 +44,9 @@
+ #include FT_INTERNAL_POSTSCRIPT_AUX_H
+ #include FT_SERVICE_CFF_TABLE_LOAD_H
  
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +#include "../base/ftinf.h"
@@ -2901,7 +2900,7 @@ index 6161393..8c00aa9 100644
  
    /*************************************************************************/
    /*                                                                       */
-@@ -1172,6 +1175,9 @@
+@@ -1170,6 +1173,9 @@
  #endif
  
      driver->no_stem_darkening = TRUE;
@@ -2912,7 +2911,7 @@ index 6161393..8c00aa9 100644
      driver->darken_params[0] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_X1;
      driver->darken_params[1] = CFF_CONFIG_OPTION_DARKENING_PARAMETER_Y1;
 diff --git a/src/smooth/ftsmooth.c b/src/smooth/ftsmooth.c
-index 435854e..d14cd1a 100644
+index ef176bdf1..8c2cf0c52 100644
 --- a/src/smooth/ftsmooth.c
 +++ b/src/smooth/ftsmooth.c
 @@ -26,6 +26,18 @@
@@ -2934,72 +2933,10 @@ index 435854e..d14cd1a 100644
  
    /* initialize renderer -- init its raster */
    static FT_Error
-@@ -34,65 +46,2278 @@
-     FT_Library  library = FT_MODULE_LIBRARY( render );
+@@ -88,6 +100,2219 @@
+       FT_Outline_Get_CBox( &slot->outline, cbox );
+   }
  
- 
--    render->clazz->raster_class->raster_reset( render->raster,
--                                               library->raster_pool,
--                                               library->raster_pool_size );
-+    render->clazz->raster_class->raster_reset( render->raster,
-+                                               library->raster_pool,
-+                                               library->raster_pool_size );
-+
-+    return 0;
-+  }
-+
-+
-+  /* sets render-specific mode */
-+  static FT_Error
-+  ft_smooth_set_mode( FT_Renderer  render,
-+                      FT_ULong     mode_tag,
-+                      FT_Pointer   data )
-+  {
-+    /* we simply pass it to the raster */
-+    return render->clazz->raster_class->raster_set_mode( render->raster,
-+                                                         mode_tag,
-+                                                         data );
-+  }
-+
-+  /* transform a given glyph image */
-+  static FT_Error
-+  ft_smooth_transform( FT_Renderer       render,
-+                       FT_GlyphSlot      slot,
-+                       const FT_Matrix*  matrix,
-+                       const FT_Vector*  delta )
-+  {
-+    FT_Error  error = FT_Err_Ok;
-+
-+
-+    if ( slot->format != render->glyph_format )
-+    {
-+      error = FT_THROW( Invalid_Argument );
-+      goto Exit;
-+    }
-+
-+    if ( matrix )
-+      FT_Outline_Transform( &slot->outline, matrix );
-+
-+    if ( delta )
-+      FT_Outline_Translate( &slot->outline, delta->x, delta->y );
-+
-+  Exit:
-+    return error;
-+  }
-+
-+
-+  /* return the glyph's control box */
-+  static void
-+  ft_smooth_get_cbox( FT_Renderer   render,
-+                      FT_GlyphSlot  slot,
-+                      FT_BBox*      cbox )
-+  {
-+    FT_ZERO( cbox );
-+
-+    if ( slot->format == render->glyph_format )
-+      FT_Outline_Get_CBox( &slot->outline, cbox );
-+  }
-+
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +  static FT_Fixed FT_FixedFromFloat(float f)
 +  {
@@ -4665,46 +4602,24 @@ index 435854e..d14cd1a 100644
 +        stems[valid_stems].generated = TRUE;
 +        valid_stems += 1;
 +      }
- 
--    return 0;
--  }
++
 +    }
- 
++
 +    /* sort stems in x direction */
 +    if ( valid_stems > 1 && stems[0].center > stems[1].center )
 +      swap_stem ( &stems[0], &stems[1] );
- 
--  /* sets render-specific mode */
--  static FT_Error
--  ft_smooth_set_mode( FT_Renderer  render,
--                      FT_ULong     mode_tag,
--                      FT_Pointer   data )
--  {
--    /* we simply pass it to the raster */
--    return render->clazz->raster_class->raster_set_mode( render->raster,
--                                                         mode_tag,
--                                                         data );
--  }
++
 +    if ( valid_stems == 0 && known_stem_values->stem_translating != 0 )
 +    {
 +      *translate_value += known_stem_values->stem_translating;
- 
--  /* transform a given glyph image */
--  static FT_Error
--  ft_smooth_transform( FT_Renderer       render,
--                       FT_GlyphSlot      slot,
--                       const FT_Matrix*  matrix,
--                       const FT_Vector*  delta )
--  {
--    FT_Error  error = FT_Err_Ok;
++
 +      if ( strategy_use_strengths )
 +      {
 +        /* consider 1/2 pixel the max when strength is at 100%,
 +           unless translate is already greater than that */
 +        FT_Int strength_cutoff = 32;
- 
- 
--    if ( slot->format != render->glyph_format )
++
++
 +        if ( abs ( *translate_value ) > strength_cutoff)
 +          strength_cutoff = *translate_value;
 +
@@ -4718,8 +4633,7 @@ index 435854e..d14cd1a 100644
 +    }
 +    else
 +    /* Start snapping */
-     {
--      error = FT_THROW( Invalid_Argument );
++    {
 +      FT_Int  center_offset;
 +      FT_Int  modulus;
 +      FT_Int  delta, delta2;
@@ -5157,19 +5071,13 @@ index 435854e..d14cd1a 100644
 +            printf ( "TRANSLATING -64 " );
 +        }
 +      }
-       goto Exit;
-     }
- 
--    if ( matrix )
--      FT_Outline_Transform( &slot->outline, matrix );
++      goto Exit;
++    }
++
 +  Exit:
- 
--    if ( delta )
--      FT_Outline_Translate( &slot->outline, delta->x, delta->y );
++
 +#define transformed_point( point ) point * *scale_value + *translate_value * 12
- 
--  Exit:
--    return error;
++
 +    if ( strategy_correct_out_of_bounds_outlines )
 +    {
 +      /* Correct if outside bitmap */
@@ -5191,31 +5099,24 @@ index 435854e..d14cd1a 100644
 +    free ( stem_centers );
 +    free ( stems );
 +    free ( leftmost_segment );
-   }
- 
- 
--  /* return the glyph's control box */
++  }
++
++
 +  /* Gamma correction */
-   static void
--  ft_smooth_get_cbox( FT_Renderer   render,
--                      FT_GlyphSlot  slot,
--                      FT_BBox*      cbox )
++  static void
 +  _ft_lcd_gamma_correction_correction ( FT_Bitmap*      bitmap,
 +                                        FT_Render_Mode  mode,
 +                                        FT_GlyphSlot    slot,
 +                                        float           gamma_correction_lt,
 +                                        float           gamma_correction_value )
-   {
--    FT_ZERO( cbox );
++  {
 +    if ( gamma_correction_value != 1.0 )
 +    {
 +      FT_UInt   width  = (FT_UInt)bitmap->width;
 +      FT_UInt   height = (FT_UInt)bitmap->rows;
 +      FT_Byte*  line   = bitmap->buffer;
 +      float     ppem   = (float)slot->face->size->metrics.x_ppem;
- 
--    if ( slot->format == render->glyph_format )
--      FT_Outline_Get_CBox( &slot->outline, cbox );
++
 +
 +      if ( !slot->face || !slot->face->size ) return;
 +
@@ -5246,46 +5147,28 @@ index 435854e..d14cd1a 100644
 +          }
 +        }
 +    }
-   }
- 
++  }
++
 +#endif
  
    /* convert a slot's glyph image into a bitmap */
    static FT_Error
-@@ -103,24 +2328,162 @@
+@@ -98,7 +2323,10 @@
                              FT_Render_Mode    required_mode )
    {
-     FT_Error     error;
+     FT_Error     error   = FT_Err_Ok;
 -    FT_Outline*  outline = &slot->outline;
--    FT_Bitmap*   bitmap  = &slot->bitmap;
--    FT_Memory    memory  = render->root.memory;
 +    FT_Outline*  outline = NULL;
++#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +    FT_Outline*  outline_orig = NULL;
-     FT_BBox      cbox;
--    FT_Pos       x_shift = 0;
--    FT_Pos       y_shift = 0;
--    FT_Pos       x_left, y_top;
--    FT_Pos       width, height, pitch;
-+    FT_Pos       width, height, pitch, ppem;
- #ifndef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
-     FT_Pos       height_org, width_org;
- #endif
-+    FT_Bitmap*   bitmap  = &slot->bitmap;
-+    FT_Memory    memory  = render->root.memory;
-     FT_Int       hmul    = ( mode == FT_RENDER_MODE_LCD );
-     FT_Int       vmul    = ( mode == FT_RENDER_MODE_LCD_V );
-+    FT_Pos       x_shift = 0;
-+    FT_Pos       y_shift = 0;
-+    FT_Pos       x_left, y_top;
++#endif
+     FT_Bitmap*   bitmap  = &slot->bitmap;
+     FT_Memory    memory  = render->root.memory;
+     FT_Pos       x_shift = 0;
+@@ -108,6 +2336,142 @@
  
      FT_Raster_Params  params;
  
--    FT_Bool  have_outline_shifted = FALSE;
--    FT_Bool  have_buffer          = FALSE;
-+    FT_Bool  have_translated_origin = FALSE;
-+    FT_Bool  have_outline_shifted   = FALSE;
-+    FT_Bool  have_buffer            = FALSE;
-+
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +    FT_Matrix    scaleMat;
 +    FT_Long      translate_value = 0;
@@ -5324,6 +5207,7 @@ index 435854e..d14cd1a 100644
 +    FT_Bool      autohinted = FALSE;
 +    FT_Bool      use_various_tweaks = FALSE;
 +    FT_Pos       cur_width = infinality_cur_width;
++    FT_Pos       ppem;
 +
 +    const FT_Int MIN_PPEM = 1;
 +    /*const FT_Int    MAX_PPEM = 100;    */
@@ -5422,12 +5306,14 @@ index 435854e..d14cd1a 100644
 +
 +#endif
  
- #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
- 
-@@ -191,26 +2554,119 @@
+     /* check glyph image format */
+     if ( slot->format != render->glyph_format )
+@@ -123,6 +2487,28 @@
        goto Exit;
      }
  
++    outline = &slot->outline;
++
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +RERENDER:
 +    if ( align_called == 1 )
@@ -5437,7 +5323,7 @@ index 435854e..d14cd1a 100644
 +      scaleMat.yx = 0;
 +      scaleMat.yy = ( 1 << 16 );
 +
-+      FT_Outline_Copy(outline_orig, outline);
++      FT_Outline_Copy( outline_orig, outline );
 +
 +      if ( scale_value != 1.0 )
 +        FT_Outline_Transform( outline, &scaleMat );
@@ -5446,25 +5332,33 @@ index 435854e..d14cd1a 100644
 +
 +      FT_Outline_EmboldenXY( outline, embolden_value, 0 );
 +    }
-+    else
++#endif
++
+     /* release old bitmap buffer */
+     if ( slot->internal->flags & FT_GLYPH_OWN_BITMAP )
+     {
+@@ -130,7 +2516,14 @@
+       slot->internal->flags &= ~FT_GLYPH_OWN_BITMAP;
+     }
+ 
++#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
++    if ( align_called == 0 )
 +    {
 +#endif
-+    outline = &slot->outline;
+     ft_glyphslot_preset_bitmap( slot, mode, origin );
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
-+      /* Need to get this PRIOR to embolden, otherwise bad things happen */
-+      FT_Outline_Get_CBox( outline, &cbox );
-+
-+      /* Various hacks that need to be turned into a new rule set */
-+      /*if ( !autohinted
-+        && use_known_settings_on_selected_fonts
-+        && mode == FT_RENDER_MODE_LCD
-+        && slot->face->family_name
-+        && slot->face->style_name
-+        && ( strcasestr(slot->face->family_name, "Courier New" )
-+          && ( strcasestr(slot->face->style_name, "Regular" )
-+            || strcasestr(slot->face->style_name, "Italic" ) ) ) )
-+        FT_Outline_Embolden( outline, 24 );*/
-+
++    }
++#endif
+ 
+     /* allocate new one */
+     if ( FT_ALLOC_MULT( bitmap->buffer, bitmap->rows, bitmap->pitch ) )
+@@ -151,9 +2544,59 @@
+       y_shift += origin->y;
+     }
+ 
++#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
++    if ( align_called == 0 )
++    {
 +      if ( slot->face )
 +      {
 +        if ( !autohinted                                              &&
@@ -5503,183 +5397,22 @@ index 435854e..d14cd1a 100644
 +
 +      FT_Outline_Copy( outline, outline_orig );
 +    }
-+
-+    /* translate the outline to the new origin if needed */
-+    if ( align_called == 0 )
-+    {
-+      FT_Pos enlarge_cbox = 0;
-+
-+      /* enlarge for grayscale rendering */
-+      if ( mode == FT_RENDER_MODE_NORMAL )
-+        enlarge_cbox = 64;
-+
-+      if ( origin )
-+      {
-+        FT_Outline_Translate( outline, origin->x, origin->y );
-+        have_translated_origin = TRUE;
-+      }
-+
-+      /* compute the control box, and grid fit it */
-+      /*FT_Outline_Get_CBox( outline, &cbox );*/
-+
-+      cbox.xMin = FT_PIX_FLOOR( cbox.xMin - enlarge_cbox );
-+      cbox.yMin = FT_PIX_FLOOR( cbox.yMin );
-+      cbox.xMax = FT_PIX_CEIL( cbox.xMax + enlarge_cbox );
-+      cbox.yMax = FT_PIX_CEIL( cbox.yMax );
-+#else
-     if ( origin )
-     {
--      x_shift = origin->x;
--      y_shift = origin->y;
-+      FT_Outline_Translate( outline, origin->x, origin->y );
-+      have_translated_origin = TRUE;
-     }
- 
-     /* compute the control box, and grid fit it */
--    /* taking into account the origin shift     */
-     FT_Outline_Get_CBox( outline, &cbox );
- 
--    cbox.xMin = FT_PIX_FLOOR( cbox.xMin + x_shift );
--    cbox.yMin = FT_PIX_FLOOR( cbox.yMin + y_shift );
--    cbox.xMax = FT_PIX_CEIL( cbox.xMax + x_shift );
--    cbox.yMax = FT_PIX_CEIL( cbox.yMax + y_shift );
--
--    x_shift -= cbox.xMin;
--    y_shift -= cbox.yMin;
--
--    x_left  = cbox.xMin >> 6;
--    y_top   = cbox.yMax >> 6;
-+    cbox.xMin = FT_PIX_FLOOR( cbox.xMin );
-+    cbox.yMin = FT_PIX_FLOOR( cbox.yMin );
-+    cbox.xMax = FT_PIX_CEIL( cbox.xMax );
-+    cbox.yMax = FT_PIX_CEIL( cbox.yMax );
-+#endif
- 
-     width  = (FT_ULong)( cbox.xMax - cbox.xMin ) >> 6;
-     height = (FT_ULong)( cbox.yMax - cbox.yMin ) >> 6;
-@@ -220,22 +2676,35 @@
-     height_org = height;
- #endif
- 
-+    /* release old bitmap buffer */
-+    if ( slot->internal->flags & FT_GLYPH_OWN_BITMAP )
-+    {
-+      FT_FREE( bitmap->buffer );
-+      slot->internal->flags &= ~FT_GLYPH_OWN_BITMAP;
-+    }
-+
-+    /* allocate new one */
-     pitch = width;
-     if ( hmul )
-     {
--      width *= 3;
--      pitch  = FT_PAD_CEIL( width, 4 );
-+      width = width * 3;
-+      pitch = FT_PAD_CEIL( width, 4 );
-     }
- 
-     if ( vmul )
-       height *= 3;
- 
-+    x_shift = cbox.xMin;
-+    y_shift = cbox.yMin;
-+    x_left  = cbox.xMin >> 6;
-+    y_top   = cbox.yMax >> 6;
-+
- #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
-     if ( lcd_filter_func )
-     {
-       if ( hmul )
-       {
--        x_shift += 64 * ( lcd_extra >> 1 );
-+        x_shift -= 64 * ( lcd_extra >> 1 );
-         x_left  -= lcd_extra >> 1;
-         width   += 3 * lcd_extra;
-         pitch    = FT_PAD_CEIL( width, 4 );
-@@ -243,23 +2712,16 @@
- 
-       if ( vmul )
-       {
--        y_shift += 64 * ( lcd_extra >> 1 );
-+        y_shift -= 64 * ( lcd_extra >> 1 );
-         y_top   += lcd_extra >> 1;
-         height  += 3 * lcd_extra;
-       }
-     }
- #endif
--
--    /*
--     * XXX: on 16bit system, we return an error for huge bitmap
--     * to prevent an overflow.
--     */
--    if ( x_left > FT_INT_MAX || y_top > FT_INT_MAX ||
--         x_left < FT_INT_MIN || y_top < FT_INT_MIN )
--    {
--      error = FT_THROW( Invalid_Pixel_Size );
--      goto Exit;
-+#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
-     }
 +#endif
 +
- 
-     /* Required check is (pitch * height < FT_ULONG_MAX),        */
-     /* but we care realistic cases only.  Always pitch <= width. */
-@@ -271,6 +2733,22 @@
-       goto Exit;
-     }
- 
-+    bitmap->pixel_mode = FT_PIXEL_MODE_GRAY;
-+    bitmap->num_grays  = 256;
-+    bitmap->width      = (unsigned int)width;
-+    bitmap->rows       = (unsigned int)height;
-+    bitmap->pitch      = pitch;
-+
-+    /* translate outline to render it into the bitmap */
+     /* translate outline to render it into the bitmap */
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +    if ( align_called == 0 )
 +    {
 +#endif
-+    FT_Outline_Translate( outline, -x_shift, -y_shift );
-+    have_outline_shifted = TRUE;
+     if ( x_shift || y_shift )
+       FT_Outline_Translate( outline, x_shift, y_shift );
 +#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
 +    }
 +#endif
-     /* release old bitmap buffer */
-     if ( slot->internal->flags & FT_GLYPH_OWN_BITMAP )
-     {
-@@ -278,7 +2756,6 @@
-       slot->internal->flags &= ~FT_GLYPH_OWN_BITMAP;
-     }
  
--    /* allocate new one */
-     if ( FT_ALLOC( bitmap->buffer, (FT_ULong)( pitch * height ) ) )
-       goto Exit;
-     else
-@@ -286,23 +2763,6 @@
- 
-     slot->internal->flags |= FT_GLYPH_OWN_BITMAP;
- 
--    slot->format      = FT_GLYPH_FORMAT_BITMAP;
--    slot->bitmap_left = (FT_Int)x_left;
--    slot->bitmap_top  = (FT_Int)y_top;
--
--    bitmap->pixel_mode = FT_PIXEL_MODE_GRAY;
--    bitmap->num_grays  = 256;
--    bitmap->width      = (unsigned int)width;
--    bitmap->rows       = (unsigned int)height;
--    bitmap->pitch      = pitch;
--
--    /* translate outline to render it into the bitmap */
--    if ( x_shift || y_shift )
--    {
--      FT_Outline_Translate( outline, x_shift, y_shift );
--      have_outline_shifted = TRUE;
--    }
--
      /* set up parameters */
      params.target = bitmap;
-     params.source = outline;
-@@ -348,8 +2808,152 @@
+@@ -200,6 +2643,129 @@
      if ( error )
        goto Exit;
  
@@ -5704,7 +5437,7 @@ index 435854e..d14cd1a 100644
 +        goto RERENDER;
 +      }
 +
-+      if ( mode == FT_RENDER_MODE_LCD )
++      if ( hmul )
 +      {
 +
 +        if ( fringe_filter_strength > 0 /*&& autohinted*/ )
@@ -5802,73 +5535,44 @@ index 435854e..d14cd1a 100644
 +          }
 +        }
 +
-+
-+        if ( lcd_filter_func )
-+          lcd_filter_func( bitmap, mode, lcd_weights );
-+
-+        if ( grayscale_filter_strength > 0 )
-+          _ft_lcd_grayscale_filter( bitmap,
-+                                    mode,
-+                                    grayscale_filter_strength,
-+                                    slot->library );
-+
 +      }
++    }
++    FT_Outline_Done( slot->library, outline_orig );
++#endif
+     /* finally apply filtering */
+     if ( hmul || vmul )
+     {
+@@ -221,8 +2787,25 @@
+ 
+       if ( lcd_filter_func )
+         lcd_filter_func( bitmap, mode, lcd_weights );
 +
-+      /* Global values */
-+      if ( brightness_value != 0 || contrast_value != 0 )
++#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
++      if ( grayscale_filter_strength > 0 )
++        _ft_lcd_grayscale_filter( bitmap,
++                                  mode,
++                                  grayscale_filter_strength,
++                                  slot->library );
++
++#endif
+     }
+ 
++#ifdef FT_CONFIG_OPTION_INFINALITY_PATCHSET
++    /* Global values */
++    if ( brightness_value != 0 || contrast_value != 0 )
 +        _ft_bitmap_bc ( bitmap,
 +                        (float)brightness_value / 300.0,
 +                        (float)contrast_value / 300.0);
++#endif
 +
-+      FT_Outline_Done( slot->library, outline_orig );
-+    }
-+    else if ( mode == FT_RENDER_MODE_LCD     &&
-+              lcd_filter_func )
-+          lcd_filter_func( bitmap, mode, lcd_weights );
-+#else
-     if ( lcd_filter_func )
-       lcd_filter_func( bitmap, mode, lcd_weights );
-+#endif /* FT_CONFIG_OPTION_INFINALITY_PATCHSET */
- 
  #else /* !FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
  
-@@ -408,6 +3012,20 @@
- 
- #endif /* !FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
- 
-+    /*
-+     * XXX: on 16bit system, we return an error for huge bitmap
-+     * to prevent an overflow.
-+     */
-+    if ( x_left > FT_INT_MAX || y_top > FT_INT_MAX )
-+    {
-+      error = FT_THROW( Invalid_Pixel_Size );
-+      goto Exit;
-+    }
-+
-+    slot->format      = FT_GLYPH_FORMAT_BITMAP;
-+    slot->bitmap_left = (FT_Int)x_left;
-+    slot->bitmap_top  = (FT_Int)y_top;
-+
-     /* everything is fine; don't deallocate buffer */
-     have_buffer = FALSE;
- 
-@@ -415,7 +3033,9 @@
- 
-   Exit:
-     if ( have_outline_shifted )
--      FT_Outline_Translate( outline, -x_shift, -y_shift );
-+      FT_Outline_Translate( outline, x_shift, y_shift );
-+    if ( have_translated_origin )
-+      FT_Outline_Translate( outline, -origin->x, -origin->y );
-     if ( have_buffer )
-     {
-       FT_FREE( bitmap->buffer );
+     if ( hmul )  /* lcd */
 diff --git a/src/truetype/ttinterp.c b/src/truetype/ttinterp.c
-index af31408..6380d83 100644
+index da9b595ab..32d31b15b 100644
 --- a/src/truetype/ttinterp.c
 +++ b/src/truetype/ttinterp.c
-@@ -5753,6 +5753,7 @@
+@@ -5794,6 +5794,7 @@
  
        if ( exc->ignore_x_mode                                 &&
             exc->GS.freeVector.x != 0                          &&
@@ -5877,5 +5581,5 @@ index af31408..6380d83 100644
          control_value_cutin = 0;
      }
 -- 
-2.13.0
+2.17.1
 
