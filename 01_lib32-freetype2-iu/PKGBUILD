@@ -5,7 +5,7 @@
 
 _pkgbasename=freetype2
 pkgname=lib32-$_pkgbasename-infinality-ultimate
-pkgver=2.9.1
+pkgver=2.10.0
 pkgrel=1
 _patchrel=2018.06.21
 pkgdesc="TrueType font rendering library with Infinality patches and custom settings by bohoomil (32-bit, infinality-bundle)."
@@ -18,16 +18,21 @@ makedepends=('gcc-multilib')
 conflicts=('lib32-freetype2' 'lib32-freetype2-infinality' 'lib32-freetype2-git-infinality'
            'lib32-freetype2-ubuntu')
 provides=('lib32-freetype2' 'lib32-freetype2-infinality')
-options=('!libtool')
 source=(http://downloads.sourceforge.net/sourceforge/freetype/freetype-${pkgver}.tar.bz2	
-        0001-infinality-${pkgver}-${_patchrel}.patch)
+        0001-infinality-${pkgver}-${_patchrel}.patch
+        0001-Enable-table-validation-modules.patch
+        0003-Enable-long-PCF-family-names.patch)
 
-sha1sums=('220c82062171c513e4017c523d196933c9de4a7d'
-          '97f4face95c81891e7e9dfc1fe29a8d6b9e1618e')
+sha1sums=('f6abf03e0e3189a0de883981c57d3861b5d314f5'
+          'aed117e1f212d6db5ff72618104af8bd1d916aa2'
+          '46fd67e6a594f6c2c473b9321ba64913984ba42f'
+          'af76172be8135e74391b7ad1b82c2124ae0ad86c')
 
 prepare() {
   cd "freetype-${pkgver}"
   patch -Np1 -i ../0001-infinality-${pkgver}-${_patchrel}.patch
+  patch -Np1 -i ../0001-Enable-table-validation-modules.patch
+  patch -Np1 -i ../0003-Enable-long-PCF-family-names.patch
 }
 
 build() {

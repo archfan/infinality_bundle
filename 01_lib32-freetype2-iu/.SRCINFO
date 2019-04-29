@@ -1,0 +1,32 @@
+pkgbase = lib32-freetype2-infinality-ultimate
+	pkgdesc = TrueType font rendering library with Infinality patches and custom settings by bohoomil (32-bit, infinality-bundle).
+	pkgver = 2.10.0
+	pkgrel = 1
+	url = http://freetype.sourceforge.net
+	arch = x86_64
+	groups = infinality-bundle-multilib
+	license = GPL
+	license = MIT
+	makedepends = gcc-multilib
+	depends = lib32-zlib
+	depends = lib32-bzip2
+	depends = lib32-libpng
+	depends = lib32-harfbuzz
+	depends = freetype2-infinality-ultimate
+	provides = lib32-freetype2
+	provides = lib32-freetype2-infinality
+	conflicts = lib32-freetype2
+	conflicts = lib32-freetype2-infinality
+	conflicts = lib32-freetype2-git-infinality
+	conflicts = lib32-freetype2-ubuntu
+	source = http://downloads.sourceforge.net/sourceforge/freetype/freetype-2.10.0.tar.bz2
+	source = 0001-infinality-2.10.0-2018.06.21.patch
+	source = 0001-Enable-table-validation-modules.patch
+	source = 0003-Enable-long-PCF-family-names.patch
+	sha1sums = f6abf03e0e3189a0de883981c57d3861b5d314f5
+	sha1sums = aed117e1f212d6db5ff72618104af8bd1d916aa2
+	sha1sums = 46fd67e6a594f6c2c473b9321ba64913984ba42f
+	sha1sums = af76172be8135e74391b7ad1b82c2124ae0ad86c
+
+pkgname = lib32-freetype2-infinality-ultimate
+
