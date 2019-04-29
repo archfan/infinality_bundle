@@ -7,7 +7,7 @@ _pkgbasename=freetype2
 pkgname=lib32-$_pkgbasename-infinality-ultimate
 pkgver=2.10.0
 pkgrel=1
-_patchrel=2019.03.21
+_patchrel=2018.06.21
 pkgdesc="TrueType font rendering library with Infinality patches and custom settings by bohoomil (32-bit, infinality-bundle)."
 arch=(x86_64)
 license=('GPL' 'MIT')
@@ -24,9 +24,9 @@ source=(http://downloads.sourceforge.net/sourceforge/freetype/freetype-${pkgver}
         0003-Enable-long-PCF-family-names.patch)
 
 sha1sums=('f6abf03e0e3189a0de883981c57d3861b5d314f5'
-          '0c4533a8d15e1caf56aaea74ab30158a56ab1c46'
           'aed117e1f212d6db5ff72618104af8bd1d916aa2'
-          '46fd67e6a594f6c2c473b9321ba64913984ba42f')
+          '46fd67e6a594f6c2c473b9321ba64913984ba42f'
+          'af76172be8135e74391b7ad1b82c2124ae0ad86c')
 
 prepare() {
   cd "freetype-${pkgver}"
