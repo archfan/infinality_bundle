@@ -3,71 +3,76 @@
 
 pkgname=fontconfig-infinality-ultimate
 _basename=fontconfig
+pkgver=2.13.1+12+g5f5ec56
+pkgrel=1
+epoch=2
 pkgdesc="A library for configuring and customizing font access, optimized for freetype2-infinality-ultimate."
-url='http://www.fontconfig.org/release/'
-license=('custom' 'MIT')
-pkgver=2.12.1
-pkgrel=3
-arch=('i686' 'x86_64')
+arch=(x86_64)
+url="https://www.freedesktop.org/wiki/Software/fontconfig/"
+license=(custom MIT)
 changelog=CHANGELOG
-groups=('infinality-bundle')
-depends=('expat' 'freetype2-infinality-ultimate')
-makedepends=('gperf' 'python2-lxml')
+groups=(infinality-bundle)
+depends=(expat freetype2-infinality-ultimate)
+makedepends=(git autoconf-archive gperf python-lxml python-six docbook-utils docbook-sgml
+             perl-sgmls 'texlive-formatsextra>=2017' lynx json-c)
+provides=('fontconfig=$pkgver' fontconfig-infinality fontconfig-infinality-ultimate)
+conflicts=(fontconfig fontconfig-infinality fontconfig-infinality-git fontconfig-infinality-ultimate-git)
+replaces=(fontconfig-iu-comp)
+backup=(etc/fonts/fonts.conf
+        etc/fonts/conf.avail.infinality/combi/30-metric-aliases-combi.conf
+        etc/fonts/conf.avail.infinality/combi/37-repl-global-combi.conf
+        etc/fonts/conf.avail.infinality/combi/60-latin-combi.conf
+        etc/fonts/conf.avail.infinality/combi/65-non-latin-combi.conf
+        etc/fonts/conf.avail.infinality/combi/66-aliases-wine-combi.conf
+        etc/fonts/conf.avail.infinality/35-repl-custom.conf
+        etc/fonts/conf.avail.infinality/38-repl-webfonts-custom.conf
+        etc/fonts/conf.avail.infinality/97-selective-rendering-custom.conf)
 options=('!libtool')
-provides=('fontconfig=$pkgver' 'fontconfig-infinality' 'fontconfig-infinality-ultimate')
-conflicts=('fontconfig' 'fontconfig-infinality' 'fontconfig-infinality-git' 'fontconfig-infinality-ultimate-git')
-replaces=('fontconfig-iu-comp')
-backup=('etc/fonts/fonts.conf'
-        'etc/fonts/conf.avail.infinality/combi/30-metric-aliases-combi.conf'
-        'etc/fonts/conf.avail.infinality/combi/37-repl-global-combi.conf'
-        'etc/fonts/conf.avail.infinality/combi/60-latin-combi.conf'
-        'etc/fonts/conf.avail.infinality/combi/65-non-latin-combi.conf'
-        'etc/fonts/conf.avail.infinality/combi/66-aliases-wine-combi.conf'
-        'etc/fonts/conf.avail.infinality/35-repl-custom.conf'
-        'etc/fonts/conf.avail.infinality/38-repl-webfonts-custom.conf'
-        'etc/fonts/conf.avail.infinality/97-selective-rendering-custom.conf')
 install=fontconfig-ultimate.install
-source=(http://www.fontconfig.org/release/${_basename}-${pkgver}.tar.bz2
-        ${_basename}-ultimate-git.tar.bz2
-        fc-cache-ib.hook)
+_commit=5f5ec5676c61b9773026a9335c9b0dfa73a73353  # master
+patches=(02-configure.ac.patch
+         04-Makefile-20171231.conf.d.patch
+         05-Makefile.am.patch
+)
+
+source=("git+https://anongit.freedesktop.org/git/fontconfig#commit=$_commit"
+        fontconfig-infinality-conf.tar.bz2
+        ${patches[@]}
+        fontconfig.hook)
+sha256sums=('SKIP'
+            '092e1d5afb0118136544677cced0a10d6b759e74b38db1483bd3023d9be853d4'
+            '9562b27eaac570ecebf0208f3304f78e3f2dd23ec635efd7469733e4ff548f06'
+            '83f899675e97088010d8f8b5744ea953428999d39d2d7d8ccf2d589c3b1fedc8'
+            'ac6411b71695d602522982797b58d2f24a964ba6cf66b8803e508eeebf0b6198'
+            'aa309f0c91451ac14d7094859595cb4487992d5ca67dc04d6e99deff2670c3f8')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+	
+#source=(http://www.fontconfig.org/release/${_basename}-${pkgver}.tar.bz2
+#        ${_basename}-ultimate-git.tar.bz2
+#        fc-cache-ib.hook)
 
 # a nice page to test font matching:
 # http://zipcon.net/~swhite/docs/computers/browsers/fonttest.html
 
 prepare() {
-
-  patches=(01-configure.patch
-           02-configure.ac.patch
-           03-Makefile.in.patch
-           04-Makefile-20160818.conf.d.patch
-           05-Makefile.am.in.patch)
-
-  # copy fontconfig-ib patches & stuff
-  cd "${_basename}-ultimate-git"
-
-  cp -r conf.d.infinality "${srcdir}/${_basename}-${pkgver}"/conf.d.infinality
-  cp -r fontconfig_patches/*.patch "${srcdir}/${_basename}-${pkgver}"
-
-  # prepare src
-  cd "${srcdir}/${_basename}-${pkgver}"
-
-  # infinality & post release fixes
+  # make the rest of scripts portable between fontconfig & fontconfig-infinality
+  [ -d "${pkgname}" ] || ln -sf fontconfig "${pkgname}"
+  cp -r fontconfig-infinality-conf/conf.d.infinality "${pkgname}"/conf.d.infinality
+  cd $pkgname
   for patch in "${patches[@]}"; do
-    patch -Np1 -i ${patch}
+    patch -Np1 -i ../${patch}
   done
 
-  # fc-blanks.py
-  #sed -i 's/python/python2/' fc-blanks/fc-blanks.py
-
-  aclocal
-  libtoolize -f
-  automake -afi
-
+  NOCONFIGURE=1 ./autogen.sh
 }
 
 build() {
-  cd "${_basename}-${pkgver}"
-
+  cd $pkgname
   ./configure --prefix=/usr \
     --sysconfdir=/etc \
     --with-templatedir=/etc/fonts/conf.avail \
@@ -76,43 +81,42 @@ build() {
     --localstatedir=/var \
     --disable-static \
     --with-default-fonts=/usr/share/fonts \
-    --with-add-fonts=/usr/share/fonts
+    --with-add-fonts=/usr/local/share/fonts
   make
 }
 
-#check() {
-#  cd "${_basename}-${pkgver}"
-#  make -k check
-#}
+check() {
+  cd $pkgname
+  make -k check
+}
 
-package() {
-  cd "${_basename}-${pkgver}"
-  make DESTDIR="${pkgdir}" install
+_install_conf() {
+  echo "about to _install_conf($1)..."
+  install -m644 "$1" "$pkgdir/etc/fonts/conf.avail"
+  ln -s "../conf.avail/${1##*/}" "$pkgdir/etc/fonts/conf.d"
 
-  #Install license
-  install -m755 -d "${pkgdir}"/usr/share/licenses/"${_basename}"
-  install -m644 COPYING "${pkgdir}"/usr/share/licenses/"${_basename}"
 
-  # alpm hook
-  install -D -m 644 "${srcdir}"/fc-cache-ib.hook \
-    "${pkgdir}/usr/share/libalpm/hooks/90-fc-cache-ib.hook"
-
-  #install infinality stuff
   cd "${srcdir}/${_basename}-ultimate-git"
 
   # copy presets
-  cp -r fontconfig_patches/{combi,free,ms} \
+  cp -r "${srcdir}"/fontconfig-infinality-conf/conf.avail.infinality/{combi,free,ms,fonts-settings} \
     "${pkgdir}"/etc/fonts/conf.avail.infinality
 
-  # install fc-presets
-  install -m755 fontconfig_patches/"fc-presets" "${pkgdir}"/usr/bin/"fc-presets"
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+  install -Dm644 ../fontconfig.hook "$pkgdir/usr/share/libalpm/hooks/fontconfig.hook"
+
+  #install infinality stuff
+  install -m755 "${srcdir}"/fontconfig-infinality-conf/fc-presets \
+    "${pkgdir}"/usr/bin/fc-presets
 
   # copy documentation
   install -m755 -d "${pkgdir}"/usr/share/doc/"${pkgname}"
   cp -r doc "${pkgdir}"/usr/share/
 
-  find "${pkgdir}" -type d -name .git -exec rm -r '{}' +
 }
-md5sums=('b5af5a423ee3b5cfc34846838963c058'
-         'a02962475eb066f1bdb1ad3376c95d38'
-         'd7f4e07501c01f1dfff79c76aae5ce71')
+
